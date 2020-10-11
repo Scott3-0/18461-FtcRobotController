@@ -139,6 +139,14 @@ public class BotHardware {
     public DcMotorEx getMotor(String name) {
         return Motor.valueOf(name).motor;
     }
+    public DcMotorEx[] getDtMotors(){
+        //ORDER IS IMPORTANT
+        //FR, BR, FL, BL
+        //DON'T FUCK IT UP
+        DcMotorEx[] DtMotors={Motor.frontRight.motor, Motor.backRight.motor, Motor.frontLeft.motor, Motor.backLeft.motor};
+        return DtMotors;
+
+    }
     public BNO055IMUHeadingSensor getImu(String name){
         return Imu.valueOf(name).imu;
     }
