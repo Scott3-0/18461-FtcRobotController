@@ -45,10 +45,8 @@ public class SimpleDriveTeleOp extends OpMode {
         float left = (ty +tx /2 );
         float right = (ty -tx/2);
 
-        float x = gamepad1.left_stick_x; //strafe
-        float y = -gamepad1.right_stick_y;//forward & back
-        x=x*x*x;
-        y=y*y*y;
+        float x = gamepad1.left_stick_x*gamepad1.left_stick_x*gamepad1.left_stick_x; //strafe
+        float y = -1*gamepad1.right_stick_y*gamepad1.right_stick_y*gamepad1.right_stick_y;//forward & back
 
         double theta = Math.atan2(-x, y);
         double heading = theta * 180.0/Math.PI;
