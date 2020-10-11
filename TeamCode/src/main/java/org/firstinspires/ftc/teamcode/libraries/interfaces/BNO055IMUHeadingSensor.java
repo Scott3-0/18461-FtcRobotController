@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.libraries.hardware;
+package org.firstinspires.ftc.teamcode.libraries.interfaces;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;

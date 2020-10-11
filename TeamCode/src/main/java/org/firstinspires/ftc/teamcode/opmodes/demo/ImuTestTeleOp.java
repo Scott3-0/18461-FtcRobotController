@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.demo;
 
 import android.os.SystemClock;
 
@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.libraries.AutoLib;
 import org.firstinspires.ftc.teamcode.libraries.hardware.BotHardware;
-import org.firstinspires.ftc.teamcode.libraries.hardware.JustDTBotHardware;
+import org.firstinspires.ftc.teamcode.libraries.interfaces.BNO055IMUHeadingSensor;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import java.sql.Time;
@@ -17,19 +17,25 @@ import java.sql.Time;
 /*
  * Made by Scoot, 10/4/2020
  **/
-@TeleOp(name="Simple Drive TeleOp")
-public class SimpleDriveTeleOp extends OpMode {
+@TeleOp(name="IMU Test TeleOp")
+public class ImuTestTeleOp extends OpMode {
     private static final float slowPow = 0.33f;
     private static final float fastPow = 1.0f;
     private boolean robotSlow = false; //init value
     private boolean lastA = false;
 
-    protected JustDTBotHardware bot = new JustDTBotHardware(this);
+    protected BotHardware bot = new BotHardware(this);
+
+    private BNO055IMUHeadingSensor localIMU = null;
+    float initialHeading = 0.0f; //in degs
 
     @Override
     public void init(){
         bot.init();
         telemetry.addData("TeleOp Init", "");
+
+            localIMU = bot.getImu("mIMU");
+            localIMU.setHeadingOffset(initialHeading); //calibrates relative to placement orientation
     }
 
     @Override
@@ -94,6 +100,7 @@ public class SimpleDriveTeleOp extends OpMode {
         bl = Range.clip(bl, -1, 1);
         bot.setAllDrive(fr, br, fl, bl);
 
+        telemetry.addData("IMU Heading", localIMU.getHeading());
         telemetry.addData("Moto Pow", fr + ", " + br + ", " + fl +", " + bl);
         telemetry.addData("slow mode", robotSlow);
     }

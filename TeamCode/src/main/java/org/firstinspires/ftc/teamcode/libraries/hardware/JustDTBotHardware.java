@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode.libraries.hardware;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import org.firstinspires.ftc.teamcode.libraries.interfaces.BNO055IMUHeadingSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /**
- * Made by Scott 3.0 10/4/2020
+ * Made by Scott 3.0 10/11/2020
  *  hardware = yes.
  */
-public class BotHardware {
+public class JustDTBotHardware {
     //def not stealing Noah's idea of enums
     public enum Motor {
         frontRight("fr", false),
@@ -41,58 +40,36 @@ public class BotHardware {
             }
         }
     } //motor enum close brack
-     /*public enum ServoE {
-        //insert servos here
-        //insert servo limit vals here
+    /*public enum ServoE {
+       //insert servos here
+       //insert servo limit vals here
 
-        private final String name;
-        public Servo servo;
-        private boolean reversed;
+       private final String name;
+       public Servo servo;
+       private boolean reversed;
 
-        ServoE(String name, boolean reversed){
-            this.reversed = reversed;
-            this.name = name;
-        }
+       ServoE(String name, boolean reversed){
+           this.reversed = reversed;
+           this.name = name;
+       }
 
-        ServoE(String name){ //shortcut so I don't have to type false every frickin time
-            this(name, false);
-        }
+       ServoE(String name){ //shortcut so I don't have to type false every frickin time
+           this(name, false);
+       }
 
-        void initServo(OpMode mode){
-            try{
-                this.servo = mode.hardwareMap.get(Servo.class, this.name);
-            }
-            catch(Exception e){
-                mode.telemetry.addData(this.name, "Failed to find servo")
-            }
-        }
-    } //servo enum close brack */
-     public enum Imu {
-         mIMU("imu", 4);
-
-         private final String name;
-         private final int orientation;
-         public BNO055IMUHeadingSensor imu;
-
-         Imu(String name, int orientation) {
-             this.name = name;
-             this.orientation = orientation;
-         }
-
-         void initImu(OpMode mode) {
-             try {
-                 this.imu = new BNO055IMUHeadingSensor(mode.hardwareMap.get(BNO055IMU.class, this.name));
-                 this.imu.init(4);
-             }
-             catch (Exception e) {
-                 mode.telemetry.addData(this.name, "Failed to find motor");
-             }
-         }
-     }
+       void initServo(OpMode mode){
+           try{
+               this.servo = mode.hardwareMap.get(Servo.class, this.name);
+           }
+           catch(Exception e){
+               mode.telemetry.addData(this.name, "Failed to find servo")
+           }
+       }
+   } //servo enum close brack */
     //opmode pointer
     private final OpMode mode;
 
-    public BotHardware(OpMode mode){
+    public JustDTBotHardware(OpMode mode){
         this.mode = mode;
     }
     public void init(){
@@ -100,8 +77,6 @@ public class BotHardware {
         for(int i = 0; i < Motor.values().length; i++){
             Motor.values()[i].initMotor(this.mode);
         }
-        //IMU init
-        Imu.mIMU.initImu(this.mode);
     }
 
     public void start(){
@@ -130,16 +105,12 @@ public class BotHardware {
         Motor.frontLeft.motor.setPower(FLpower);
         Motor.backLeft.motor.setPower(BLpower);
     }
-
-
+    //init IMU here somewhere
     public void stopAll() {
         for(Motor motor : Motor.values()) motor.motor.setPower(0);
     }
 
     public DcMotorEx getMotor(String name) {
         return Motor.valueOf(name).motor;
-    }
-    public BNO055IMUHeadingSensor getImu(String name){
-        return Imu.valueOf(name).imu;
     }
 }
