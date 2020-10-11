@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.libraries;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import org.firstinspires.ftc.teamcode.libraries.interfaces.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
@@ -11,6 +10,7 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.libraries.interfaces.DistanceSensor;
 import org.firstinspires.ftc.teamcode.libraries.interfaces.HeadingSensor;
 
 /**

@@ -1,15 +1,8 @@
 package org.firstinspires.ftc.teamcode.libraries;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
-import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.Range;
 
 
@@ -1021,7 +1014,7 @@ public class AutoLib {
     static public class AzimuthCountedDriveStep extends ConcurrentSequence implements SetDirectionHeadingPower {
 
         public AzimuthCountedDriveStep(OpMode mode, float heading, HeadingSensor gyro, SensorLib.PID pid,
-                                     DcMotor motors[], float power, float maxPower, int count, boolean stop)
+                                       DcMotor motors[], float power, float maxPower, int count, boolean stop)
         {
             this(mode, heading, gyro, pid, motors, power, count, stop);
             this.setMaxPower(maxPower);
@@ -1064,7 +1057,7 @@ public class AutoLib {
     static public class AzimuthDistanceDriveStep extends ConcurrentSequence implements SetDirectionHeadingPower {
 
         public AzimuthDistanceDriveStep(OpMode mode, float heading, HeadingSensor gyro, SensorLib.PID pid,
-                                     DcMotor motors[], float power, DistanceSensor ds, float distance)
+                                        DcMotor motors[], float power, DistanceSensor ds, float distance)
         {
             // add a concurrent Step to control each motor
             ArrayList<SetPower> steps = new ArrayList<SetPower>();
@@ -1116,7 +1109,7 @@ public class AutoLib {
     static public class AzimuthTolerancedTurnStep extends ConcurrentSequence implements SetDirectionHeadingPower {
 
         public AzimuthTolerancedTurnStep(OpMode mode, float heading, HeadingSensor gyro, SensorLib.PID pid,
-                                    DcMotor motors[], float power, float tol, float timeout)
+                                         DcMotor motors[], float power, float tol, float timeout)
         {
             // add a concurrent Step to control each motor
             ArrayList<SetPower> steps = new ArrayList<SetPower>();
@@ -1342,7 +1335,7 @@ public class AutoLib {
     static public class SquirrelyGyroTimedDriveStep extends AutoLib.ConcurrentSequence implements SetDirectionHeadingPower {
 
         public SquirrelyGyroTimedDriveStep(OpMode mode, float direction, float heading, HeadingSensor gyro, SensorLib.PID pid,
-                                              DcMotor motors[], float power, float time, boolean stop)
+                                           DcMotor motors[], float power, float time, boolean stop)
         {
             // add a concurrent Step to control each motor
             ArrayList<AutoLib.SetPower> steps = new ArrayList<AutoLib.SetPower>();
@@ -1375,7 +1368,7 @@ public class AutoLib {
     static public class SquirrelyGyroCountedDriveStep extends ConcurrentSequence implements SetDirectionHeadingPower{
 
         public SquirrelyGyroCountedDriveStep(OpMode mode, float direction, float heading, HeadingSensor gyro, SensorLib.PID pid,
-                                       DcMotor motors[], float power, int count, boolean stop)
+                                             DcMotor motors[], float power, int count, boolean stop)
         {
             // add a concurrent Step to control each motor
             ArrayList<SetPower> steps = new ArrayList<SetPower>();
@@ -2122,6 +2115,4 @@ public class AutoLib {
 
 
 }
-
-
 
