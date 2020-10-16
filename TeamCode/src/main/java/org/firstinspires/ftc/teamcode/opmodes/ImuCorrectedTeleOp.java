@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import android.os.SystemClock;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -22,7 +23,7 @@ import java.sql.Time;
  * Made by Scott 3.0, 10/11/2020
  *
  **/
-
+@Disabled
 @TeleOp(name="IMU Corrected TeleOp")
 public class ImuCorrectedTeleOp extends OpMode {
     private static final float slowPow = 0.33f;
