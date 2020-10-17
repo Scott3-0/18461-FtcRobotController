@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.libraries.interfaces.BNO055IMUHeadingSensor;
 
 /**
@@ -17,8 +19,8 @@ public class BotHardware {
         frontRight("fr", false),
         backRight("br", false),
         frontLeft("fl", true),
-        backLeft("bl", true);
-
+        backLeft("bl", true),
+        out("outtake", false);
         private final String name;
         private final boolean reverse;
         public DcMotorEx motor;
@@ -41,9 +43,15 @@ public class BotHardware {
             }
         }
     } //motor enum close brack
-     /*public enum ServoE {
-        //insert servos here
-        //insert servo limit vals here
+     public enum ServoE {
+        out("outServo"),
+        arm("sensorArm");
+
+        public static final double outUp = 0;
+        public static final double outDown = 1;
+
+        public static final double armUp = 0;
+        public static final double armDown = 1;
 
         private final String name;
         public Servo servo;
@@ -63,10 +71,11 @@ public class BotHardware {
                 this.servo = mode.hardwareMap.get(Servo.class, this.name);
             }
             catch(Exception e){
-                mode.telemetry.addData(this.name, "Failed to find servo")
+                mode.telemetry.addData(this.name, "Failed to find servo");
             }
         }
-    } //servo enum close brack */
+    } //servo enum close brack
+
      public enum Imu {
          mIMU("imu", 4);
 
@@ -99,6 +108,10 @@ public class BotHardware {
         //motor init
         for(int i = 0; i < Motor.values().length; i++){
             Motor.values()[i].initMotor(this.mode);
+        }
+        //servo init
+        for(int i = 0; i < ServoE.values().length; i++){
+            ServoE.values()[i].initServo(this.mode);
         }
         //IMU init
         Imu.mIMU.initImu(this.mode);
@@ -149,5 +162,8 @@ public class BotHardware {
     }
     public BNO055IMUHeadingSensor getImu(String name){
         return Imu.valueOf(name).imu;
+    }
+    public Servo GetServo(int index){
+        return ServoE.values()[index].servo;
     }
 }
