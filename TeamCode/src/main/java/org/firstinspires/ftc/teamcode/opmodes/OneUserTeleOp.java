@@ -2,18 +2,13 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import android.os.SystemClock;
 
-import com.qualcomm.hardware.logitech.LogitechGamepadF310;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.libraries.AutoLib;
 import org.firstinspires.ftc.teamcode.libraries.hardware.BotHardware;
-import org.firstinspires.ftc.teamcode.libraries.hardware.JustDTBotHardware;
-
-import com.qualcomm.robotcore.hardware.Gamepad;
-import java.sql.Time;
+import org.firstinspires.ftc.teamcode.libraries.interfaces.ControllerLib;
 
 /*
  * Made by Scoot, 10/4/2020
@@ -23,11 +18,14 @@ public class OneUserTeleOp extends OpMode {
     private static final float slowPow = 0.33f;
     private static final float fastPow = 1.0f;
     private boolean robotSlow = false; //init values
-    private boolean lastOutServo = false;
+    //private boolean lastOutServo = false;
     private boolean lastOutMotor = false;
     private boolean lastArm = false;
 
     protected BotHardware bot = new BotHardware(this);
+
+    private ControllerLib g1;
+    private ControllerLib g2; //we dont need this
 
     @Override
     public void init(){
@@ -35,11 +33,14 @@ public class OneUserTeleOp extends OpMode {
         telemetry.addData("TeleOp Init", "");
         BotHardware.ServoE.valueOf("arm").servo.setPosition(BotHardware.ServoE.armL);
         BotHardware.ServoE.valueOf("out").servo.setPosition(BotHardware.ServoE.outL);
+
+        g1 = new ControllerLib(gamepad1);
+        g2 = new ControllerLib(gamepad2);
     }
 
     @Override
     public void start(){
-        gamepad1.setJoystickDeadzone(0.05f);
+        gamepad1.setJoystickDeadzone(0.05f); //these still need to be gamepad1 lul
         gamepad2.setJoystickDeadzone(0.05f);
         bot.start();
         telemetry.addData("TeleOp Start", "");
@@ -48,14 +49,15 @@ public class OneUserTeleOp extends OpMode {
     @Override
     public  void loop(){
 
+        g1.update();
 
-        float tx = 2*gamepad1.right_stick_x*gamepad1.right_stick_x*gamepad1.right_stick_x; // WTF??
-        float ty = -1*gamepad1.left_stick_y*gamepad1.left_stick_y*gamepad1.left_stick_y;
+        float tx = 2*g1.right_stick_x*g1.right_stick_x*g1.right_stick_x; // WTF??
+        float ty = -1*g1.left_stick_y*g1.left_stick_y*g1.left_stick_y;
         float left = (ty +tx /2 );
         float right = (ty -tx/2);
 
-        float x = gamepad1.left_stick_x*gamepad1.left_stick_x*gamepad1.left_stick_x; //strafe
-        float y = -1*gamepad1.right_stick_y*gamepad1.right_stick_y*gamepad1.right_stick_y;//forward & back
+        float x = g1.left_stick_x*g1.left_stick_x*g1.left_stick_x; //strafe
+        float y = -1*g1.right_stick_y*g1.right_stick_y*g1.right_stick_y;//forward & back
 
         double theta = Math.atan2(-x, y);
         double heading = theta * 180.0/Math.PI;
@@ -67,50 +69,50 @@ public class OneUserTeleOp extends OpMode {
         front *= power;
         back *= power;
 
-        if(robotSlow && gamepad1.a){
+        if(robotSlow && g1.AOnce()){
             robotSlow = false;
-            SystemClock.sleep(500);
+            //SystemClock.sleep(500);
 
         }
-        else if(!robotSlow && gamepad1.a){
+        else if(!robotSlow && g1.AOnce()){
             robotSlow = true;
-            SystemClock.sleep(500);
+            //SystemClock.sleep(500);
         }
 
-        if(!lastOutServo && gamepad1.b){
+        if(g1.BOnce()){
             BotHardware.ServoE.out.servo.setPosition(BotHardware.ServoE.outR);
             SystemClock.sleep(250);
             BotHardware.ServoE.out.servo.setPosition(BotHardware.ServoE.outL);
 
         }
-        lastOutServo = gamepad1.b;
+        //lastOutServo = false;
 
         if(lastOutMotor){
-            if(gamepad1.x) {
+            if(g1.XOnce()) {
                 lastOutMotor = false;
-                SystemClock.sleep(500);
+                //SystemClock.sleep(500);
             }
             bot.setOutPower(1);
         }
         else if(!lastOutMotor){
-            if(gamepad1.x) {
+            if(g1.XOnce()) {
                 lastOutMotor = true;
-                SystemClock.sleep(500);
+                //SystemClock.sleep(500);
             }
             bot.setOutPower(0);
         }
 
         if(lastArm){
-            if(gamepad1.y) {
+            if(g1.YOnce()) {
                 lastArm = false;
-                SystemClock.sleep(500);
+                //SystemClock.sleep(500);
             }
             BotHardware.ServoE.arm.servo.setPosition(BotHardware.ServoE.armR);
         }
         else if(!lastArm){
-            if(gamepad1.y) {
+            if(g1.YOnce()) {
                 lastArm = true;
-                SystemClock.sleep(500);
+                //SystemClock.sleep(500);
             }
             BotHardware.ServoE.arm.servo.setPosition(BotHardware.ServoE.armL);
         }
