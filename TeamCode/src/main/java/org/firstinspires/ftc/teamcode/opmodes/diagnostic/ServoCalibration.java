@@ -2,13 +2,19 @@ package org.firstinspires.ftc.teamcode.opmodes.diagnostic;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.libraries.hardware.BotHardware;
 
+/**
+ *  Made by Scott 10/18/20
+ */
+//TODO: Fix servo outOfIndex error
+//TODO: Fix telemetry outputs
+
 @TeleOp(name="Servo Calibrate")
 public class ServoCalibration extends OpMode {
-    int i = 0;
     private enum Incs {
         SMALL(0.01),
         MEDIUM(0.05),
@@ -23,8 +29,11 @@ public class ServoCalibration extends OpMode {
 
     BotHardware bot = new BotHardware(this);
     boolean lastDPad = false;
+    boolean lastFaceButton = false;
     int incIndex = 0;
 
+    int servoIndex = 0;
+    Servo curServo;
     @Override
     public void init() {
 
@@ -41,33 +50,28 @@ public class ServoCalibration extends OpMode {
 
     @Override
     public void loop() {
+        if(!lastFaceButton){
+            if(gamepad1.b) servoIndex = Range.clip(servoIndex - 1, 0, BotHardware.ServoE.values().length - 1);
+            else if(gamepad1.a) servoIndex = Range.clip(servoIndex + 1, 0, BotHardware.ServoE.values().length + 1);
+        }
+        curServo = BotHardware.ServoE.values()[servoIndex].servo;
+        lastFaceButton = gamepad1.a || gamepad1.b;
 
-        i = Seti(i);
-        telemetry.addData("Servo", bot.GetServo(i).getPosition());
+        //telemetry
+        telemetry.addData("Cur Servo", curServo);
+        telemetry.addData("Servo Pos", curServo.getPosition());
         telemetry.addData("Increment", Incs.values()[incIndex].inc);
-        telemetry.addData("Index", i);
-        telemetry.addData("Servo Name", bot.GetServo(i).getDeviceName());
+        telemetry.addData("Servo Index", servoIndex);
 
-        if(!lastDPad) {
-            if (gamepad1.dpad_up)
-                bot.GetServo(i).setPosition(Range.clip(bot.GetServo(i).getPosition() + Incs.values()[incIndex].inc, -1, 1));
+        if(!lastDPad){
+            if(gamepad1.dpad_up)
+                curServo.setPosition(Range.clip(curServo.getPosition() + Incs.values()[incIndex].inc, -1, 1));
             else if (gamepad1.dpad_down)
-                bot.GetServo(i).setPosition(Range.clip(bot.GetServo(i).getPosition() - Incs.values()[incIndex].inc, -1, 1));
+                curServo.setPosition(Range.clip(curServo.getPosition() - Incs.values()[incIndex].inc, -1, 1));
+
             else if (gamepad1.dpad_left) incIndex = Range.clip(incIndex - 1, 0, Incs.values().length - 1);
             else if (gamepad1.dpad_right) incIndex = Range.clip(incIndex + 1, 0, Incs.values().length - 1);
         }
-
         lastDPad = gamepad1.dpad_up || gamepad1.dpad_right || gamepad1.dpad_left || gamepad1.dpad_down;
-    }
-    int Seti(int in){
-        if(gamepad1.a && in < BotHardware.ServoE.values().length){
-            return in++;
-        }
-        else if(gamepad1.b && in > 0){
-            return in--;
-        }
-        else{
-            return in;
-        }
     }
 }

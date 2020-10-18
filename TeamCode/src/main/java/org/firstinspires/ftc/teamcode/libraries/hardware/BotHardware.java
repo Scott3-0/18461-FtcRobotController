@@ -44,14 +44,14 @@ public class BotHardware {
         }
     } //motor enum close brack
      public enum ServoE {
-        out("outServo"),
-        arm("sensorArm");
+        out("outServo", true),
+        arm("sensorArm", false);
 
-        public static final double outUp = 0;
-        public static final double outDown = 1;
+        public static final double outL = 0.53;
+        public static final double outR = 0.2;
 
-        public static final double armUp = 0;
-        public static final double armDown = 1;
+        public static final double armL = 0.45;
+        public static final double armR = 0.07;
 
         private final String name;
         public Servo servo;
@@ -60,10 +60,6 @@ public class BotHardware {
         ServoE(String name, boolean reversed){
             this.reversed = reversed;
             this.name = name;
-        }
-
-        ServoE(String name){ //shortcut so I don't have to type false every frickin time
-            this(name, false);
         }
 
         void initServo(OpMode mode){
@@ -134,6 +130,8 @@ public class BotHardware {
     public void setBlDrive(double power) {
         Motor.backLeft.motor.setPower(power);
     }
+
+    public void setOutPower(double power){Motor.out.motor.setPower(power);}
     //ORDER IS IMPORTANT
     //FR, BR, FL, BL
     //DON'T FUCK IT UP
@@ -162,8 +160,5 @@ public class BotHardware {
     }
     public BNO055IMUHeadingSensor getImu(String name){
         return Imu.valueOf(name).imu;
-    }
-    public Servo GetServo(int index){
-        return ServoE.values()[index].servo;
     }
 }
