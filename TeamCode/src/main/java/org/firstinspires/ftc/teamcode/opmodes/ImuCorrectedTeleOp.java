@@ -58,23 +58,6 @@ public class ImuCorrectedTeleOp extends OpMode {
         g1 = new ControllerLib(gamepad1);
         g2 = new ControllerLib(gamepad2);
     }
-    //PID Constructor
-    void PidSetup(){
-        // construct a PID controller for correcting heading errors
-        final float Kp = 0.01f;        // degree heading proportional term correction per degree of deviation
-        final float Ki = 0f;        // ... integrator term
-        final float Kd = 0f;         // ... derivative term
-        final float KiCutoff = 10.0f;   // maximum angle error for which we update integrator
-        SensorLib.PID pid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
-
-        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 0, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
-        int countsPerRev = (int)Math.round(28*15.6);		// for final gear ratio of 15.6 @ 28 counts/motorRev
-        double wheelDiam = 4.0;		    // wheel diameter (in)
-        Position initialPos = new Position(DistanceUnit.INCH, 0.0, 0.0, 0.0, 0);  // example starting position: at origin of field
-        SensorLib.EncoderGyroPosInt.DriveType dt = //SensorLib.EncoderGyroPosInt.DriveType.XDRIVE;
-                SensorLib.EncoderGyroPosInt.DriveType.MECANUM;
-        mPosInt = new SensorLib.EncoderGyroPosInt(dt,this, localIMU, bot.getDtMotors(), countsPerRev, wheelDiam, initialPos);
-    }
     /*
      * This method will be called repeatedly in a loop
      *
@@ -90,19 +73,71 @@ public class ImuCorrectedTeleOp extends OpMode {
 
     @Override
     public  void loop(){
-        DtLoopIntegration();
-        ImuLoopIntegration();
-        mStep.loop();
-        /**
-         * Unfinished OpMode
-         * TODO: Finish the IMU integration
-         * See: https://github.com/rijdmc419/SkyStone/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/_TeleOp/AbsoluteSquirrelyGyroDrive1PUAL.java#L76
-        **/
-    }
+        if(robotSlow && gamepad1.a){
+            robotSlow = false;
+            SystemClock.sleep(500);
 
-    void DtLoopIntegration(){
-        float tx = 2*g1.right_stick_x*g1.right_stick_x*g1.right_stick_x; // WTF??
-        float ty = -1*g1.left_stick_y*g1.left_stick_y*g1.left_stick_y;
+        }
+        else if(!robotSlow && gamepad1.a){
+            robotSlow = true;
+            SystemClock.sleep(500);
+        }
+
+        final double deadband = 0.05;
+        //left stick controls
+        float dx = gamepad1.right_stick_x;
+        float dy = -gamepad1.right_stick_y;
+
+        //power = magnitude of dir vector
+        double power = Math.sqrt(dx*dx + dy*dy);
+        if(Math.abs(power) < deadband) power = 0; //if we're in the deadzone, don't give power
+
+        power = scaleInput(power); // cube the joystick values to make it easier to control the robot more precisely at slower speeds
+        mStep.setPower((float) power);// set the current power on the step that actually controls the robot
+        mStep.setMaxPower((float) 1.0); // make sure we can rotate even if we're not moving
+
+         /* the following if statement sets the direction when we're >0 power
+          *  Math.atan2 is great and converts rectangular coords to polar
+          */
+        if(power > 0){
+            double dir = Math.atan2(-dx, dy);
+            dir *= 180 /Math.PI; //converts radian to degs
+            mStep.setDirection((float) dir);
+        }
+
+        //right stick controls
+        float hx = gamepad1.left_stick_x;
+        float hy = -gamepad1.left_stick_y;
+
+        double heading = 0;
+        boolean setHeading = false;
+        double hMag = Math.sqrt(hx*hx + hy*hy);
+        if(hMag > deadband){
+            heading = Math.atan2(-hx, hy);
+            heading *= 180 / Math.PI;
+            setHeading = true;
+        }
+        /*
+        // also allow inputting of orientation on 8-way pad
+        if (gamepad1.dpad_up) { heading = 0; setHeading = true; }
+        if (gamepad1.dpad_right) { heading = -90; setHeading = true; }
+        if (gamepad1.dpad_down) { heading = 180; setHeading = true; }
+        if (gamepad1.dpad_left) { heading = 90; setHeading = true; }
+        if (gamepad1.dpad_up && gamepad1.dpad_right) { heading = -45; setHeading = true; }
+        if (gamepad1.dpad_down && gamepad1.dpad_right) { heading = -135; setHeading = true; }
+        if (gamepad1.dpad_down && gamepad1.dpad_left) { heading = 135; setHeading = true; }
+        if (gamepad1.dpad_up && gamepad1.dpad_left) { heading = 45; setHeading = true; }
+        */
+
+        // set the direction that robot should face on the step that actually controls the robot
+        if (setHeading)
+            mStep.setHeading((float) heading);
+
+        // run the control step
+        mStep.loop();
+        /**//**//**//**//**
+        float tx = 2*gamepad1.right_stick_x*gamepad1.right_stick_x*gamepad1.right_stick_x; // WTF??
+        float ty = -1*gamepad1.left_stick_y*gamepad1.left_stick_y*gamepad1.left_stick_y;
         float left = (ty +tx /2 );
         float right = (ty -tx/2);
 
@@ -155,17 +190,51 @@ public class ImuCorrectedTeleOp extends OpMode {
 
         telemetry.addData("Moto Pow", fr + ", " + br + ", " + fl +", " + bl);
         telemetry.addData("slow mode", robotSlow);
-    }
-
-    void ImuLoopIntegration(){
-
-
+        /**//**//**//**//**
         telemetry.addData("IMU Heading", localIMU.getHeading());
+        mStep.setPower((float) power);
+        mStep.setMaxPower((float) 1.0);
+
+        if(power > 0){
+            d
+        }
+        **//**//**//**//**
+        mStep.loop(); */
+        /**
+         * Unfinished OpMode
+         * TODO: Finish the IMU integration
+         * See: https://github.com/rijdmc419/SkyStone/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/_TeleOp/AbsoluteSquirrelyGyroDrive1PUAL.java#L76
+        **/
     }
 
+    //PID Constructor
+    void PidSetup(){
+        // construct a PID controller for correcting heading errors
+        final float Kp = 0.01f;        // degree heading proportional term correction per degree of deviation
+        final float Ki = 0f;        // ... integrator term
+        final float Kd = 0f;         // ... derivative term
+        final float KiCutoff = 10.0f;   // maximum angle error for which we update integrator
+        SensorLib.PID pid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
+
+        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 0, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
+        int countsPerRev = (int)Math.round(28*15.6);		// for final gear ratio of 15.6 @ 28 counts/motorRev
+        double wheelDiam = 4.0;		    // wheel diameter (in)
+        Position initialPos = new Position(DistanceUnit.INCH, 0.0, 0.0, 0.0, 0);  // example starting position: at origin of field
+        SensorLib.EncoderGyroPosInt.DriveType dt = //SensorLib.EncoderGyroPosInt.DriveType.XDRIVE;
+                SensorLib.EncoderGyroPosInt.DriveType.MECANUM;
+        mPosInt = new SensorLib.EncoderGyroPosInt(dt,this, localIMU, bot.getDtMotors(), countsPerRev, wheelDiam, initialPos);
+    }
 
     @Override
     public void stop(){
         bot.stopAll();
+    }
+    /*
+     * This method scales the joystick input so for low joystick values, the
+     * scaled value is less than linear.  This is to make it easier to drive
+     * the robot more precisely at slower speeds.
+     */
+    double scaleInput(double dVal)  {
+        return dVal*dVal*dVal;		// maps {-1,1} -> {-1,1}
     }
 }
