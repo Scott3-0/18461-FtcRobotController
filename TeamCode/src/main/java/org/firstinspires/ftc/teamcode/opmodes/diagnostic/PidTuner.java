@@ -1,11 +1,7 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.diagnostic;
 
-import android.os.SystemClock;
-
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -16,17 +12,39 @@ import org.firstinspires.ftc.teamcode.libraries.hardware.BotHardware;
 import org.firstinspires.ftc.teamcode.libraries.interfaces.BNO055IMUHeadingSensor;
 import org.firstinspires.ftc.teamcode.libraries.interfaces.ControllerLib;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
-import java.sql.Time;
+//check this shiz out https://pidexplained.com/how-to-tune-a-pid-controller/
 
-/**
- *
- * Made by Scott 3.0, 10/11/2020
- *
- **/
-//@Disabled
-@TeleOp(name="IMU Corrected TeleOp")
-public class ImuCorrectedTeleOp extends OpMode {
+@TeleOp(name ="PID Tuner")
+public class PidTuner extends OpMode {
+    // construct a PID controller for correcting heading errors
+    double Kp = 0.01f;        // degree heading proportional term correction per degree of deviation
+    double Ki = 0f;        // ... integrator term
+    double Kd = 0f;         // ... derivative term
+    double KiCutoff = 10.0f;   // maximum angle error for which we update integrator
+    SensorLib.PID pid;
+    private enum Incs {
+        SMALL(0.01),
+        MEDIUM(0.05),
+        EHH(0.1),
+        BIGGISH(0.5),
+        BIG(1),
+        BIGGER(5),
+        BIGGEST(10),
+        HOLYMOTHER(50),
+        HOLYFATHER(100),
+        HOLY(500),
+        HOLIEST(1000);
+
+        public double inc;
+        Incs(double inc) {
+            this.inc = inc;
+        }
+    }
+    boolean lastDPad = false;
+    boolean lastFaceButton = false;
+    int incIndex = 0;
+
+    int curSelectVar = 0;
     private static final float slowPow = 0.33f;
     private static final float fastPow = 1.0f;
     private boolean robotSlow = false; //init value
@@ -44,10 +62,11 @@ public class ImuCorrectedTeleOp extends OpMode {
     SensorLib.EncoderGyroPosInt mPosInt;	// position integrator
 
     //constructor
-    public ImuCorrectedTeleOp() {}
+    public PidTuner() {}
 
-    @Override
+
     public void init(){
+        telemetry.addData("Status", "Initialized");
         bot.init();
         telemetry.addData("TeleOp Init", "");
 
@@ -58,11 +77,6 @@ public class ImuCorrectedTeleOp extends OpMode {
         g1 = new ControllerLib(gamepad1);
         g2 = new ControllerLib(gamepad2);
     }
-    /*
-     * This method will be called repeatedly in a loop
-     *
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
-     */
     @Override
     public void start(){
         gamepad1.setJoystickDeadzone(0.05f);
@@ -70,11 +84,40 @@ public class ImuCorrectedTeleOp extends OpMode {
         bot.start();
         telemetry.addData("TeleOp Start", "");
     }
-
     @Override
-    public  void loop(){
+    public void loop(){
         g1.update();
         g2.update();
+
+        if(!lastFaceButton){
+            if(g1.B()) curSelectVar = Range.clip(curSelectVar - 1, 0, 2);
+            else if(g1.A()) curSelectVar = Range.clip(curSelectVar + 1, 0, 2);
+        }
+        lastFaceButton = g1.A() || g1.B();
+
+        //telemetry
+        telemetry.addData("Cur Selected Var", curSelectVar);
+        telemetry.addData("P_val", Kp);
+        telemetry.addData("I_val", Ki);
+        telemetry.addData("D_val", Kd);
+        telemetry.addData("Increment", PidTuner.Incs.values()[incIndex].inc);
+
+        if(!lastDPad){
+            if (gamepad1.dpad_up) {
+                if(curSelectVar == 0) Kp = Kp + PidTuner.Incs.values()[incIndex].inc;
+                else if(curSelectVar == 1) Ki = Ki + PidTuner.Incs.values()[incIndex].inc;
+                else if(curSelectVar == 2) Kd = Kd + PidTuner.Incs.values()[incIndex].inc;
+            }
+            else if (gamepad1.dpad_down) {
+                if (curSelectVar == 0) Kp = Kp - PidTuner.Incs.values()[incIndex].inc;
+                else if (curSelectVar == 1) Ki = Ki - PidTuner.Incs.values()[incIndex].inc;
+                else if (curSelectVar == 2) Kd = Kd - PidTuner.Incs.values()[incIndex].inc;
+            }
+            else if (gamepad1.dpad_left) incIndex = Range.clip(incIndex - 1, 0, PidTuner.Incs.values().length - 1);
+            else if (gamepad1.dpad_right) incIndex = Range.clip(incIndex + 1, 0, PidTuner.Incs.values().length - 1);
+        }
+        lastDPad = gamepad1.dpad_up || gamepad1.dpad_right || gamepad1.dpad_left || gamepad1.dpad_down;
+
         if(robotSlow && g1.AOnce()) robotSlow = false;
         else if(!robotSlow && g1.AOnce()) robotSlow = true;
 
@@ -87,14 +130,16 @@ public class ImuCorrectedTeleOp extends OpMode {
         double power = Math.sqrt(dx*dx + dy*dy);
         if(Math.abs(power) < deadband) power = 0; //if we're in the deadzone, don't give power
 
-        if(robotSlow) power = (1/3) * scaleInput(power); // cube the joystick values to make it easier to control the robot more precisely at slower speeds
-        else if(!robotSlow) power = scaleInput(power);
+        scaleInput(power);
+
+        if(robotSlow) power *= 1/3; // cube the joystick values to make it easier to control the robot more precisely at slower speeds
+
         mStep.setPower((float) power);// set the current power on the step that actually controls the robot
         mStep.setMaxPower((float) 1.0); // make sure we can rotate even if we're not moving
 
-         /* the following if statement sets the direction when we're >0 power
-          *  Math.atan2 is great and converts rectangular coords to polar
-          */
+        /* the following if statement sets the direction when we're >0 power
+         *  Math.atan2 is great and converts rectangular coords to polar
+         */
         if(power > 0){
             double dir = Math.atan2(-dx, dy);
             dir *= 180 /Math.PI; //converts radian to degs
@@ -132,24 +177,20 @@ public class ImuCorrectedTeleOp extends OpMode {
         // run the control step
         mStep.loop();
 
-        telemetry.addData("Moto Pow", power);
+        telemetry.addData("Power", power);
         telemetry.addData("slow mode", robotSlow);
-         telemetry.addData("IMU Heading", localIMU.getHeading());
-        /**
-         * Unfinished OpMode
-         * TODO: Finish the IMU integration
-         * See: https://github.com/rijdmc419/SkyStone/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/_TeleOp/AbsoluteSquirrelyGyroDrive1PUAL.java#L76
-        **/
+        telemetry.addData("IMU Heading", localIMU.getHeading());
+        pid = new SensorLib.PID((float)Kp, (float)Ki, (float)Kd, (float)KiCutoff);
+        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 0, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
     }
 
-    //PID Constructor
+    @Override
+    public void stop(){
+        bot.stopAll();
+    }
+
     void PidSetup(){
-        // construct a PID controller for correcting heading errors
-        final float Kp = 0.01f;        // degree heading proportional term correction per degree of deviation
-        final float Ki = 0f;        // ... integrator term
-        final float Kd = 0f;         // ... derivative term
-        final float KiCutoff = 10.0f;   // maximum angle error for which we update integrator
-        SensorLib.PID pid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
+        pid = new SensorLib.PID((float)Kp, (float)Ki, (float)Kd, (float)KiCutoff);
 
         mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 0, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
         int countsPerRev = (int)Math.round(28*15.6);		// for final gear ratio of 15.6 @ 28 counts/motorRev
@@ -158,11 +199,6 @@ public class ImuCorrectedTeleOp extends OpMode {
         SensorLib.EncoderGyroPosInt.DriveType dt = //SensorLib.EncoderGyroPosInt.DriveType.XDRIVE;
                 SensorLib.EncoderGyroPosInt.DriveType.MECANUM;
         mPosInt = new SensorLib.EncoderGyroPosInt(dt,this, localIMU, bot.getDtMotors(), countsPerRev, wheelDiam, initialPos);
-    }
-
-    @Override
-    public void stop(){
-        bot.stopAll();
     }
     /*
      * This method scales the joystick input so for low joystick values, the
