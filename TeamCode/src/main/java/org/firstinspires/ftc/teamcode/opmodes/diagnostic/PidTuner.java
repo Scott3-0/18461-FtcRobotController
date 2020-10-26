@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.libraries.hardware.BotHardware;
 import org.firstinspires.ftc.teamcode.libraries.interfaces.BNO055IMUHeadingSensor;
 import org.firstinspires.ftc.teamcode.libraries.interfaces.ControllerLib;
 
+import java.text.DecimalFormat;
+
 //check this shiz out https://pidexplained.com/how-to-tune-a-pid-controller/
 
 @TeleOp(name ="PID Tuner")
@@ -85,75 +87,84 @@ public class PidTuner extends OpMode {
         telemetry.addData("TeleOp Start", "");
     }
     @Override
-    public void loop(){
+    public void loop() {
         g1.update();
         g2.update();
 
-        if(!lastFaceButton){
-            if(g1.B()) curSelectVar = Range.clip(curSelectVar - 1, 0, 2);
-            else if(g1.A()) curSelectVar = Range.clip(curSelectVar + 1, 0, 2);
+        if (!lastFaceButton) {
+            if (g1.B()) curSelectVar = Range.clip(curSelectVar - 1, 0, 2);
+            else if (g1.A()) curSelectVar = Range.clip(curSelectVar + 1, 0, 2);
         }
         lastFaceButton = g1.A() || g1.B();
 
-        //telemetry
+        //telemetry stuf
+        DecimalFormat df = new DecimalFormat("0.00");
         telemetry.addData("Cur Selected Var", curSelectVar);
-        telemetry.addData("P_val", Kp);
-        telemetry.addData("I_val", Ki);
-        telemetry.addData("D_val", Kd);
+        telemetry.addData("P_val", df.format(Kp));
+        telemetry.addData("I_val", df.format(Ki));
+        telemetry.addData("D_val", df.format(Kd));
         telemetry.addData("Increment", PidTuner.Incs.values()[incIndex].inc);
 
-        if(!lastDPad){
+        if (!lastDPad) {
             if (gamepad1.dpad_up) {
-                if(curSelectVar == 0) Kp = Kp + PidTuner.Incs.values()[incIndex].inc;
-                else if(curSelectVar == 1) Ki = Ki + PidTuner.Incs.values()[incIndex].inc;
-                else if(curSelectVar == 2) Kd = Kd + PidTuner.Incs.values()[incIndex].inc;
-            }
-            else if (gamepad1.dpad_down) {
+                if (curSelectVar == 0) Kp = Kp + PidTuner.Incs.values()[incIndex].inc;
+                else if (curSelectVar == 1) Ki = Ki + PidTuner.Incs.values()[incIndex].inc;
+                else if (curSelectVar == 2) Kd = Kd + PidTuner.Incs.values()[incIndex].inc;
+            } else if (gamepad1.dpad_down) {
                 if (curSelectVar == 0) Kp = Kp - PidTuner.Incs.values()[incIndex].inc;
                 else if (curSelectVar == 1) Ki = Ki - PidTuner.Incs.values()[incIndex].inc;
                 else if (curSelectVar == 2) Kd = Kd - PidTuner.Incs.values()[incIndex].inc;
-            }
-            else if (gamepad1.dpad_left) incIndex = Range.clip(incIndex - 1, 0, PidTuner.Incs.values().length - 1);
-            else if (gamepad1.dpad_right) incIndex = Range.clip(incIndex + 1, 0, PidTuner.Incs.values().length - 1);
+            } else if (gamepad1.dpad_left)
+                incIndex = Range.clip(incIndex - 1, 0, PidTuner.Incs.values().length - 1);
+            else if (gamepad1.dpad_right)
+                incIndex = Range.clip(incIndex + 1, 0, PidTuner.Incs.values().length - 1);
         }
         lastDPad = gamepad1.dpad_up || gamepad1.dpad_right || gamepad1.dpad_left || gamepad1.dpad_down;
 
-        if(robotSlow && g1.AOnce()) robotSlow = false;
-        else if(!robotSlow && g1.AOnce()) robotSlow = true;
+        if (robotSlow && g1.XOnce()) robotSlow = false;
+        else if (!robotSlow && g1.XOnce()) robotSlow = true;
 
         final double deadband = 0.05;
-        //left stick controls
+        //right stick controls
         float dx = gamepad1.right_stick_x;
         float dy = -gamepad1.right_stick_y;
 
         //power = magnitude of dir vector
-        double power = Math.sqrt(dx*dx + dy*dy);
-        if(Math.abs(power) < deadband) power = 0; //if we're in the deadzone, don't give power
+        double power;
+        power = Math.sqrt(dx * dx + dy * dy);
+        if (Math.abs(power) < deadband) power = 0; //if we're in the deadzone, don't give power
 
         scaleInput(power);
 
-        if(robotSlow) power *= 1/3; // cube the joystick values to make it easier to control the robot more precisely at slower speeds
+        if (robotSlow) {
+            power /= 3;
+            mStep.setPower((float) power);// set the current power on the step that actually controls the robot
+            mStep.setMaxPower((float) 0.3333); // make sure we can rotate even if we're not moving
+        }
+        else{
+            mStep.setPower((float) power);// set the current power on the step that actually controls the robot
+            mStep.setMaxPower((float) 1.0); // make sure we can rotate even if we're not moving
+        }
 
-        mStep.setPower((float) power);// set the current power on the step that actually controls the robot
-        mStep.setMaxPower((float) 1.0); // make sure we can rotate even if we're not moving
 
         /* the following if statement sets the direction when we're >0 power
          *  Math.atan2 is great and converts rectangular coords to polar
          */
-        if(power > 0){
-            double dir = Math.atan2(-dx, dy);
-            dir *= 180 /Math.PI; //converts radian to degs
+        double dir = 0;
+        if (power > 0) {
+            dir = Math.atan2(-dx, dy);
+            dir *= 180 / Math.PI; //converts radian to degs
             mStep.setDirection((float) dir);
         }
 
-        //right stick controls
+        //left stick controls
         float hx = gamepad1.left_stick_x;
         float hy = -gamepad1.left_stick_y;
 
         double heading = 0;
         boolean setHeading = false;
-        double hMag = Math.sqrt(hx*hx + hy*hy);
-        if(hMag > deadband){
+        double hMag = Math.sqrt(hx * hx + hy * hy);
+        if (hMag > deadband) {
             heading = Math.atan2(-hx, hy);
             heading *= 180 / Math.PI;
             setHeading = true;
@@ -169,19 +180,21 @@ public class PidTuner extends OpMode {
         if (gamepad1.dpad_down && gamepad1.dpad_left) { heading = 135; setHeading = true; }
         if (gamepad1.dpad_up && gamepad1.dpad_left) { heading = 45; setHeading = true; }
         */
-
+        if(g1.YOnce()) {
+            float imuOff = localIMU.getHeading();
+            localIMU.setHeadingOffset(imuOff);
+        }
         // set the direction that robot should face on the step that actually controls the robot
         if (setHeading)
             mStep.setHeading((float) heading);
-
         // run the control step
         mStep.loop();
 
         telemetry.addData("Power", power);
         telemetry.addData("slow mode", robotSlow);
         telemetry.addData("IMU Heading", localIMU.getHeading());
-        pid = new SensorLib.PID((float)Kp, (float)Ki, (float)Kd, (float)KiCutoff);
-        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 0, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
+        pid = new SensorLib.PID((float) Kp, (float) Ki, (float) Kd, (float) KiCutoff);
+        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, (float)dir, (float)heading, localIMU, pid, bot.getDtMotors(), (float) power, 10000, false);
     }
 
     @Override

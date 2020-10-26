@@ -145,8 +145,8 @@ public class ImuCorrectedTeleOp extends OpMode {
     //PID Constructor
     void PidSetup(){
         // construct a PID controller for correcting heading errors
-        final float Kp = 0.01f;        // degree heading proportional term correction per degree of deviation
-        final float Ki = 0f;        // ... integrator term
+        final float Kp = 0.02f;        // degree heading proportional term correction per degree of deviation
+        final float Ki = 11.25f;        // ... integrator term
         final float Kd = 0f;         // ... derivative term
         final float KiCutoff = 10.0f;   // maximum angle error for which we update integrator
         SensorLib.PID pid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
