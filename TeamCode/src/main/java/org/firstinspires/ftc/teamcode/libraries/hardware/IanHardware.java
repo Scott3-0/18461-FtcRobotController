@@ -64,7 +64,7 @@ public class IanHardware {
     //opmode pointer
     private final OpMode mode;
 
-    public JustDTBotHardware(OpMode mode){
+    public IanHardware(OpMode mode){
         this.mode = mode;
     }
     public void init(){

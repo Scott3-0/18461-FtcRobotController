@@ -12,5 +12,36 @@ import org.firstinspires.ftc.teamcode.libraries.interfaces.ControllerLib;
 
 @TeleOp(name="Ian learning code lol")
 public class IanLeraning extends OpMode {
+    private static final float motorPow = .5f;
 
+    protected IanHardware rat = new IanHardware(this);
+    private ControllerLib g1;
+
+    @Override
+    public void init(){
+        rat.init();
+        g1 = new ControllerLib(gamepad1);
+    }
+
+    @Override
+    public void start(){
+        gamepad1.setJoystickDeadzone(0.05f);
+        rat.start(); //yes absolutely necessary
+
+    }
+
+    @Override
+    public void loop(){
+        g1.update();
+
+        float ly = g1.left_stick_y;
+        float ry = g1.right_stick_y;
+
+        ly = Range.clip(ly, -1, 1);
+        ry = Range.clip(ry, -1, 1);
+        rat.setAllDrive(ry, ry, ly, ly);
+    }
+
+    @Override
+    public void stop() {rat.stopAll();}
 }
