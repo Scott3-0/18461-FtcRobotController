@@ -37,8 +37,10 @@ public class IanLeraning extends OpMode {
         float ly = g1.left_stick_y;
         float ry = g1.right_stick_y;
 
-        ly = Range.clip(ly, -1, 1);
-        ry = Range.clip(ry, -1, 1);
+        double lPow = ly;
+        double rPow = ry;
+        lPow = Range.clip(lPow, -1, 1);
+        rPow = Range.clip(rPow, -1, 1);
         rat.setAllDrive(ry, ry, ly, ly);
     }
 
