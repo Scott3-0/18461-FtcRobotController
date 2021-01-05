@@ -38,7 +38,16 @@ public class ImuCorrectedTeleOp extends OpMode {
     protected BotHardware bot = new BotHardware(this);
 
     private BNO055IMUHeadingSensor localIMU = null;
-    float initialHeading = 0.0f; //in degs
+    float initialHeading = 90f; //in DEG //TODO: See if needs changed
+    /*
+    *          [0]
+    *           |
+    *           |
+    *  [90] ----@---- [-90]
+    *           |
+    *           |
+    *       [+/- 180]
+     */
 
     AutoLib.SquirrelyGyroTimedDriveStep mStep;
     SensorLib.EncoderGyroPosInt mPosInt;	// position integrator
@@ -110,10 +119,10 @@ public class ImuCorrectedTeleOp extends OpMode {
         double hMag = Math.sqrt(hx*hx + hy*hy);
         if(hMag > deadband){
             heading = Math.atan2(-hx, hy);
-            heading *= 180 / Math.PI;
+            heading *= 180 / Math.PI; //rad 2 deg
             setHeading = true;
         }
-        /*
+
         // also allow inputting of orientation on 8-way pad
         if (gamepad1.dpad_up) { heading = 0; setHeading = true; }
         if (gamepad1.dpad_right) { heading = -90; setHeading = true; }
@@ -123,11 +132,11 @@ public class ImuCorrectedTeleOp extends OpMode {
         if (gamepad1.dpad_down && gamepad1.dpad_right) { heading = -135; setHeading = true; }
         if (gamepad1.dpad_down && gamepad1.dpad_left) { heading = 135; setHeading = true; }
         if (gamepad1.dpad_up && gamepad1.dpad_left) { heading = 45; setHeading = true; }
-        */
+
 
         // set the direction that robot should face on the step that actually controls the robot
         if (setHeading)
-            mStep.setHeading((float) heading);
+            mStep.setHeading((float)heading); //TODO: see if 90 breaks it
 
         // run the control step
         mStep.loop();
@@ -145,8 +154,8 @@ public class ImuCorrectedTeleOp extends OpMode {
     //PID Constructor
     void PidSetup(){
         // construct a PID controller for correcting heading errors
-        final float Kp = 0.02f;        // degree heading proportional term correction per degree of deviation
-        final float Ki = 11.25f;        // ... integrator term
+        final float Kp = 0.05f;        // degree heading proportional term correction per degree of deviation
+        final float Ki = 3.00f;        // ... integrator term
         final float Kd = 0f;         // ... derivative term
         final float KiCutoff = 10.0f;   // maximum angle error for which we update integrator
         SensorLib.PID pid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);

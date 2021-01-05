@@ -15,6 +15,9 @@ import org.firstinspires.ftc.teamcode.libraries.interfaces.BNO055IMUHeadingSenso
  */
 public class BotHardware {
     //def not stealing Noah's idea of enums
+    public float slowPow = 0.33f;
+    public float fastPow = 1f;
+
     public enum Motor {
         frontRight("fr", false),
         backRight("br", false),

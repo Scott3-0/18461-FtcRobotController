@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.diagnostic;
+ package org.firstinspires.ftc.teamcode.opmodes.diagnostic;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -19,8 +19,8 @@ import java.text.DecimalFormat;
 @TeleOp(name ="PID Tuner")
 public class PidTuner extends OpMode {
     // construct a PID controller for correcting heading errors
-    double Kp = 0.01f;        // degree heading proportional term correction per degree of deviation
-    double Ki = 0f;        // ... integrator term
+    double Kp = 0.05f;        // degree heading proportional term correction per degree of deviation
+    double Ki = 0.09f;        // ... integrator term
     double Kd = 0f;         // ... derivative term
     double KiCutoff = 10.0f;   // maximum angle error for which we update integrator
     SensorLib.PID pid;
