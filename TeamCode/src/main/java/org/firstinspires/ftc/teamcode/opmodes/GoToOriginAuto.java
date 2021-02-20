@@ -45,8 +45,8 @@ public class GoToOriginAuto extends OpMode {
         imu = bot.getImu("mIMU");
         imu.setHeadingOffset(initHead);
 
-        float initX =1*tl - (botLength/2);
-        float initY = -1*tl + (botLength/2);
+        float initX = 2.5f*tl  -(botLength/2)+3;//2.5f*tl-(botLength/2);
+        float initY = -1.25f*tl + 6;//-0.5f*tl-(botLength/2);
 
         //pid setup stuff
         float Kp = 0.04f;
@@ -70,7 +70,7 @@ public class GoToOriginAuto extends OpMode {
 
         seq = new AutoLib.LinearSequence();
 
-        seq.add(new AutoLib.SqPosIntDriveToStep(this, posInt, motors, uniPow, pid, new Position(DistanceUnit.INCH, 0, 0, 0, 0), 0, tol, true));
+        seq.add(new AutoLib.SqPosIntDriveToStep(this, posInt, motors, uniPow, pid, new Position(DistanceUnit.INCH, -0.25*tl, 0, 0, 0), 90, tol, true));
     }
     @Override
     public void start(){
