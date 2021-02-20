@@ -70,7 +70,7 @@ public class GoToOriginAuto extends OpMode {
 
         seq = new AutoLib.LinearSequence();
 
-        seq.add(new AutoLib.SqPosIntDriveToStep(this, posInt, motors, uniPow, pid, new Position(DistanceUnit.INCH, -0.25*tl, 0, 0, 0), 90, tol, true));
+        seq.add(new AutoLib.SqPosIntDriveToStep(this, posInt, motors, uniPow, pid, new Position(DistanceUnit.INCH, -0.25*tl, -1.25*tl, 0, 0), 90, tol, true));
     }
     @Override
     public void start(){
