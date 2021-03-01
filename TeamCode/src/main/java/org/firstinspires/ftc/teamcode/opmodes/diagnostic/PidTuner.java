@@ -20,11 +20,12 @@ import java.text.DecimalFormat;
 public class PidTuner extends OpMode {
     // construct a PID controller for correcting heading errors
     double Kp = 0.05f;        // degree heading proportional term correction per degree of deviation
-    double Ki = 0.09f;        // ... integrator term
+    double Ki = 0.11f;        // ... integrator term
     double Kd = 0f;         // ... derivative term
-    double KiCutoff = 10.0f;   // maximum angle error for which we update integrator
+    double KiCutoff = 7.5f;   // maximum angle error for which we update integrator
     SensorLib.PID pid;
     private enum Incs {
+        MEWHENSMALL(0.001),
         SMALL(0.01),
         MEDIUM(0.05),
         EHH(0.1),
@@ -98,7 +99,7 @@ public class PidTuner extends OpMode {
         lastFaceButton = g1.A() || g1.B();
 
         //telemetry stuf
-        DecimalFormat df = new DecimalFormat("0.00");
+        DecimalFormat df = new DecimalFormat("0.000");
         telemetry.addData("Cur Selected Var", curSelectVar);
         telemetry.addData("P_val", df.format(Kp));
         telemetry.addData("I_val", df.format(Ki));

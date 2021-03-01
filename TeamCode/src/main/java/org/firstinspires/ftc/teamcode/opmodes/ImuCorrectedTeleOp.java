@@ -29,7 +29,7 @@ import java.sql.Time;
 public class ImuCorrectedTeleOp extends OpMode {
     private static final float slowPow = 0.33f;
     private static final float fastPow = 1.0f;
-    private boolean robotSlow = false; //init value
+    private boolean robotSlow = true; //init value
     private boolean lastA = false;
 
     private ControllerLib g1;
@@ -89,8 +89,8 @@ public class ImuCorrectedTeleOp extends OpMode {
 
         final double deadband = 0.05;
         //left stick controls
-        float dx = gamepad1.right_stick_x;
-        float dy = -gamepad1.right_stick_y;
+        float dx = gamepad1.left_stick_x;
+        float dy = -gamepad1.left_stick_y;
 
         //power = magnitude of dir vector
         double power = Math.sqrt(dx*dx + dy*dy);
@@ -111,8 +111,8 @@ public class ImuCorrectedTeleOp extends OpMode {
         }
 
         //right stick controls
-        float hx = gamepad1.left_stick_x;
-        float hy = -gamepad1.left_stick_y;
+        float hx = gamepad1.right_stick_x;
+        float hy = -gamepad1.right_stick_y;
 
         double heading = 0;
         boolean setHeading = false;
@@ -149,18 +149,32 @@ public class ImuCorrectedTeleOp extends OpMode {
          * TODO: Finish the IMU integration
          * See: https://github.com/rijdmc419/SkyStone/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/_TeleOp/AbsoluteSquirrelyGyroDrive1PUAL.java#L76
         **/
+
+        if(g1.rightBumperOnce()){
+            BotHardware.ServoE.out.servo.setPosition(BotHardware.ServoE.outR);
+            SystemClock.sleep(250);
+            BotHardware.ServoE.out.servo.setPosition(BotHardware.ServoE.outL);
+
+        }
+
+        if(g1.right_trigger>0.5f){
+            bot.setOutPower(1);
+        }
+        else {
+            bot.setOutPower(0);
+        }
     }
 
     //PID Constructor
     void PidSetup(){
         // construct a PID controller for correcting heading errors
         final float Kp = 0.05f;        // degree heading proportional term correction per degree of deviation
-        final float Ki = 3.00f;        // ... integrator term
-        final float Kd = 0f;         // ... derivative term
-        final float KiCutoff = 10.0f;   // maximum angle error for which we update integrator
+        final float Ki = 0.10f;        // ... integrator term 0.09
+        final float Kd = 0f;         // ... derivative term 0.001
+        final float KiCutoff = 7.5f;   // maximum angle error for which we update integrator
         SensorLib.PID pid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
 
-        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 0, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
+        mStep = new AutoLib.SquirrelyGyroTimedDriveStep(this, 0, 90, localIMU, pid, bot.getDtMotors(), 0, 10000, false);
         int countsPerRev = (int)Math.round(28*15.6);		// for final gear ratio of 15.6 @ 28 counts/motorRev
         double wheelDiam = 4.0;		    // wheel diameter (in)
         Position initialPos = new Position(DistanceUnit.INCH, 0.0, 0.0, 0.0, 0);  // example starting position: at origin of field
