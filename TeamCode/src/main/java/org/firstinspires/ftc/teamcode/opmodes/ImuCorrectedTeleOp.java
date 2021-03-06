@@ -29,8 +29,8 @@ import java.sql.Time;
 public class ImuCorrectedTeleOp extends OpMode {
     private static final float slowPow = 0.33f;
     private static final float fastPow = 1.0f;
-    private boolean robotSlow = true; //init value
-    private boolean lastA = false;
+    private boolean robotSlow = false; //init value
+    //private boolean lastA = false;
 
     private ControllerLib g1;
     private ControllerLib g2;
@@ -40,13 +40,13 @@ public class ImuCorrectedTeleOp extends OpMode {
     private BNO055IMUHeadingSensor localIMU = null;
     float initialHeading = 90f; //in DEG //TODO: See if needs changed
     /*
-    *          [0]
+    *          [-90]
     *           |
     *           |
-    *  [90] ----@---- [-90]
+    *  [0] ----@---- [+/- 180]
     *           |
     *           |
-    *       [+/- 180]
+    *         [90]
      */
 
     AutoLib.SquirrelyGyroTimedDriveStep mStep;
@@ -84,22 +84,22 @@ public class ImuCorrectedTeleOp extends OpMode {
     public  void loop(){
         g1.update();
         g2.update();
-        if(robotSlow && g1.AOnce()) robotSlow = false;
-        else if(!robotSlow && g1.AOnce()) robotSlow = true;
+        if(robotSlow && g1.leftBumperOnce()) robotSlow = false;
+        else if(!robotSlow && g1.leftBumperOnce()) robotSlow = true;
 
-        final double deadband = 0.05;
+        final double deadband = 0.75;
         //left stick controls
-        float dx = gamepad1.left_stick_x;
-        float dy = -gamepad1.left_stick_y;
+        float dx = gamepad1.right_stick_x;
+        float dy = -gamepad1.right_stick_y;
 
         //power = magnitude of dir vector
         double power = Math.sqrt(dx*dx + dy*dy);
-        if(Math.abs(power) < deadband) power = 0; //if we're in the deadzone, don't give power
+        //if(Math.abs(power) < deadband) power = 0; //if we're in the deadzone, don't give power
 
-        if(robotSlow) power = (1/3) * scaleInput(power); // cube the joystick values to make it easier to control the robot more precisely at slower speeds
+        if(robotSlow) power = (0.33f) * scaleInput(power); // cube the joystick values to make it easier to control the robot more precisely at slower speeds
         else if(!robotSlow) power = scaleInput(power);
         mStep.setPower((float) power);// set the current power on the step that actually controls the robot
-        mStep.setMaxPower((float) 1.0); // make sure we can rotate even if we're not moving
+        mStep.setMaxPower(0.85f); // make sure we can rotate even if we're not moving
 
          /* the following if statement sets the direction when we're >0 power
           *  Math.atan2 is great and converts rectangular coords to polar
@@ -111,8 +111,8 @@ public class ImuCorrectedTeleOp extends OpMode {
         }
 
         //right stick controls
-        float hx = gamepad1.right_stick_x;
-        float hy = -gamepad1.right_stick_y;
+        float hx = gamepad1.left_stick_x;
+        float hy = -gamepad1.left_stick_y;
 
         double heading = 0;
         boolean setHeading = false;
