@@ -23,7 +23,8 @@ public class BotHardware {
         backRight("br", false),
         frontLeft("fl", true),
         backLeft("bl", true),
-        out("outtake", false);
+        out("outtake", false),
+        wobble("wobble", false);
         private final String name;
         private final boolean reverse;
         public DcMotorEx motor;
@@ -48,7 +49,7 @@ public class BotHardware {
     } //motor enum close brack
      public enum ServoE {
         out("outServo", true),
-        arm("sensorArm", false);
+        arm("wobbleArm", false);
 
         public static final double outL = 0.53;
         public static final double outR = 0.2;
