@@ -4,6 +4,7 @@ import android.os.SystemClock;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -30,7 +31,7 @@ public class WobbleArmTeleOp extends OpMode {
     private ControllerLib g1;
     private ControllerLib g2;
 
-    private StupidMotorLib StupidWobble;
+    private DcMotor StupidWobble;
 
     protected BotHardware bot = new BotHardware(this);
 
@@ -64,7 +65,8 @@ public class WobbleArmTeleOp extends OpMode {
         g1 = new ControllerLib(gamepad1);
         g2 = new ControllerLib(gamepad2);
 
-        StupidWobble = new StupidMotorLib(bot.getMotor("wobble"), 0.5f);
+        StupidWobble = bot.getMotor("wobble");
+
     }
     /*
      * This method will be called repeatedly in a loop
@@ -77,7 +79,7 @@ public class WobbleArmTeleOp extends OpMode {
         gamepad2.setJoystickDeadzone(0.05f);
         bot.start();
         telemetry.addData("TeleOp Start", "");
-        StupidWobble.setPosition(0); //TODO FIX
+        //StupidWobble.setPosition(250); //TODO FIX
     }
 
     @Override
@@ -144,6 +146,9 @@ public class WobbleArmTeleOp extends OpMode {
         telemetry.addData("Moto Pow", power);
         telemetry.addData("slow mode", robotSlow);
          telemetry.addData("IMU Heading", localIMU.getHeading());
+         telemetry.addData("ArmServ",BotHardware.ServoE.arm.servo.getPosition());
+         telemetry.addData("armPow", StupidWobble.getPower());
+         //telemetry.addData("StupidWobble", StupidWobble.getCounts());
         /**
          * Unfinished OpMode
          * TODO: Finish the IMU integration
@@ -164,11 +169,21 @@ public class WobbleArmTeleOp extends OpMode {
             bot.setOutPower(0);
         }
 
-        if(g2.AOnce() && lastA){
-            StupidWobble.setPosition(10); //TODO FIX
+        if(g2.dpadUp()){
+            StupidWobble.setPower(-1); //TODO FIX
         }
-        else if(g2.AOnce()){
-            StupidWobble.setPosition(0); //TODO FIX
+        else if(g2.dpadDown()){
+            StupidWobble.setPower(0.66); //TODO FIX
+        }
+        else{
+            StupidWobble.setPower(0);
+        }
+
+        if(g2.right_trigger>0.5f){
+            BotHardware.ServoE.arm.servo.setPosition(0); //TODO FIX
+        }
+        else{
+            BotHardware.ServoE.arm.servo.setPosition(1); //TODO FIX
         }
     }
 
