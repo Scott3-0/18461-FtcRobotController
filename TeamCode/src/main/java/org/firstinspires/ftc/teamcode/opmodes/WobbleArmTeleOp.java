@@ -4,6 +4,7 @@ import android.os.SystemClock;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -25,12 +26,12 @@ public class WobbleArmTeleOp extends OpMode {
     private static final float slowPow = 0.33f;
     private static final float fastPow = 1.0f;
     private boolean robotSlow = false; //init value
-    private boolean lastA = true;
+    //private boolean lastA = true;
 
     private ControllerLib g1;
     private ControllerLib g2;
 
-    private StupidMotorLib StupidWobble;
+    private DcMotor StupidWobble;
 
     protected BotHardware bot = new BotHardware(this);
 
@@ -64,7 +65,7 @@ public class WobbleArmTeleOp extends OpMode {
         g1 = new ControllerLib(gamepad1);
         g2 = new ControllerLib(gamepad2);
 
-        StupidWobble = new StupidMotorLib(bot.getMotor("wobble"), 0.5f);
+        StupidWobble = bot.getMotor("wobble");
     }
     /*
      * This method will be called repeatedly in a loop
@@ -77,7 +78,7 @@ public class WobbleArmTeleOp extends OpMode {
         gamepad2.setJoystickDeadzone(0.05f);
         bot.start();
         telemetry.addData("TeleOp Start", "");
-        StupidWobble.setPosition(0); //TODO FIX
+        //StupidWobble.setPosition(0); //TODO FIX
     }
 
     @Override
@@ -164,11 +165,21 @@ public class WobbleArmTeleOp extends OpMode {
             bot.setOutPower(0);
         }
 
-        if(g2.AOnce() && lastA){
-            StupidWobble.setPosition(10); //TODO FIX
+        if(g2.dpadUp()){
+            StupidWobble.setPower(0.25); //TODO FIX
         }
-        else if(g2.AOnce()){
-            StupidWobble.setPosition(0); //TODO FIX
+        else if(g2.dpadDown()){
+            StupidWobble.setPower(-0.15); //TODO FIX
+        }
+        else{
+            StupidWobble.setPower(0);
+        }
+
+        if(g2.right_trigger>0.5f){
+            BotHardware.ServoE.arm.servo.setPosition(0);
+        }
+        else{
+            BotHardware.ServoE.arm.servo.setPosition(1);
         }
     }
 
