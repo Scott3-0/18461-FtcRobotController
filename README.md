@@ -13,7 +13,7 @@ You decided to be a coder, despite all our warnings. A few notes to start you of
 * The more code you write that the bot uses, the more things there are to break.
 * If you want to get points in auto, consistency wins the game, it is better to do less stuff more often than more stuff than less often.
 * If you know 2+2=4 then you do not need to mathematically prove and write a research paper on why 2+2=4.
-* The bot does not move if there is not code for it. Do whatever you need to in order to get a mental and//or physical space to focus on school.
+* The bot does not move if there is not code for it. Do whatever you need to in order to get a mental and/or physical space to focus on code.
 * Knowing your audience is important in any presentation, your audience is engineers and scientists. Talk about stuff that would impress them.
 * For the love of all that is holy, organize your code.
 * Documenting code is 100x harder than writing code. Coding is a third marketing, a third testing, and a third writing code. Don't expect to spend all your time in front of a computer.
