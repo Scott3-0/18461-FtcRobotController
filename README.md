@@ -9,7 +9,7 @@ You decided to be a coder, despite all our warnings. A few notes to start you of
 * Despite this, write a Control Award every time, expect to get awarded nothing.
 * You have limited time, if you waste time writing comments, then that's time that can be used to write code. Don't spend too much time outside of practice to write code. Instead, be more effecient with your time in practice.
 * AutoLib is your best friend, treat it as your bible or quran or torah. It will most likely do everything you need to do.
-* Why use many word when few word do trick. Don't try to do some fany algorithm only for optimized smooth turning. The less you understand the code that you wrote, the more likely it is to break.
+* Why use many word when few word do trick. Don't try to do some fancy algorithm only for optimized smooth turning. The less you understand the code that you wrote, the more likely it is to break.
 * The more code you write that the bot uses, the more things there are to break.
 * If you want to get points in auto, consistency wins the game, it is better to do less stuff more often than more stuff than less often.
 * If you know 2+2=4 then you do not need to mathematically prove and write a research paper on why 2+2=4.
